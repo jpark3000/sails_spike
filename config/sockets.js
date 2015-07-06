@@ -10,8 +10,11 @@
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.sockets.html
  */
 // var express = require('express');
-var cookie = require('sails/node_modules/cookie');
-var request = require('request');
+var cookie = require('sails/node_modules/cookie'),
+    request = require('request');
+//     redis = require('redis'),
+//     redisClient = redis.createClient();
+// redisClient.select(10);
 
 module.exports.sockets = {
 
@@ -41,16 +44,16 @@ module.exports.sockets = {
   * via port 6379                                                            *
   *                                                                          *
   ***************************************************************************/
-  adapter: 'memory',
+  // adapter: 'memory',
 
   //
   // -OR-
   //
 
-  // adapter: 'redis',
-  // host: '127.0.0.1',
-  // port: 6379,
-  // db: 'sails',
+  adapter: 'socket.io-redis',
+  host: 'localhost',
+  port: 6379,
+  db: 11,
   // pass: '<redis auth password>',
 
 
@@ -113,8 +116,9 @@ module.exports.sockets = {
   beforeConnect: function(handshake, cb) {
     // cookieObj = cookie.parse(handshake.headers.cookie);
     // console.log(cookieObj)
-
+    // console.log(handshake)
     var sessionId = cookie.parse(handshake.headers.cookie).sessionid;
+    // console.log(handshake.headers.cookie);
     // console.log(sessionId);
     var options = {
       uri: 'http://localhost:8000/api/v1/collaboration/',
@@ -125,6 +129,8 @@ module.exports.sockets = {
     };
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 201) {
+        // console.log(body.api_key);
+        // redisClient.set('sessionId', body.api_key);
         return cb(null, true);
       } else {
         return cb(null, false);
